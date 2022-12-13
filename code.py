@@ -1,12 +1,11 @@
 import numpy as np
-#import math
-#import matplotlib.pyplot as plt
-#import random
+import math
+import matplotlib.pyplot as plt
+import random
 
-mat_transition_etats_test = np.array([[ "", "S", "I", "R"],
-                                      ["S", 2/3, 1/3,   0], 
-                                      ["I",   0, 5/6, 1/6], 
-                                      ["R",   0,   0,   1]])
+matrice_transition = np.array([[2/3, 1/3,   0], 
+                               [  0, 5/6, 1/6], 
+                               [  0,   0,   1]])
 
 seq_test = np.array([0., 0., 0., 1., 1., 1., 1., 1., 1., 2.])
 
