@@ -3,15 +3,28 @@ import math
 import matplotlib.pyplot as plt
 import random
 
-matrice_transition = np.array([[2/3, 1/3,   0], 
-                               [  0, 5/6, 1/6], 
-                               [  0,   0,   1]])
-
-seq_test = np.array([0., 0., 0., 1., 1., 1., 1., 1., 1., 2.])
-
-data = np.loadtxt("data_exo_2022.txt")
-
 def rec_extract_values(iterable, dico):
+    """
+    Paramètres:
+    iterable : any
+        Iterable (ou non) dont on veut extraire les valeurs dans un dictionnaire
+    dico : dict
+        Dictionnaire qui stockera les valeurs extraites
+        
+    Retourne:
+    None
+
+    Description:
+    Fonction permettant d'extraire toutes les valeurs de iterable en les stockant
+    dans dico, et qui compte toutes les fois où chaque valeur est apparue.
+    (Dans cette fonction les strings sont considérés comme non-iterable, donc
+    seront compté comme une valeur quelconque)
+    
+    Exemple:
+    dico : {}
+    rec_extract_values([1, 3, [3, 7]])
+    dico : {1:1, 3:2, 7:1}
+    """
     if type(iterable) in [type([]), type(np.matrix([])), type(np.array([]))]:
         for l in iterable:
             rec_extract_values(l, dico)
@@ -23,6 +36,21 @@ def rec_extract_values(iterable, dico):
             dico[iterable] += 1
             
 def rec_sum_values(iterable):
+    """
+    Paramètres:
+    iterable : any iterable type of (int or float)
+        Iterable dont on veut sommer les valeurs
+        
+    Retourne:
+    somme : int or float
+        Somme des valeurs de iterable
+    
+    Description:
+    Fonction permettant de retourner la somme de toutes les valeurs de iterable.
+    
+    Exemple:
+    rec_sum_values([1, 3, [3, 7.5]]) : 14.5
+    """
     if type(iterable) in [type([]), type(np.matrix([])), type(np.array([]))]:
         somme = 0
         for l in iterable:
@@ -30,12 +58,41 @@ def rec_sum_values(iterable):
         return somme
     else:
         return iterable
+    
+def dict_zero(dico):
+    """
+    Paramètres:
+    dico : dict
+        Dictionnaire dont on veut mettre toutes ses valeurs à 0
+        
+    Retourne:
+    None
+    
+    Description:
+    Fonction permettant pour un dictionnaire de conserver ses clés tout en fixant leur valeur à 0.
+    
+    Exemple:
+    dico : {1:1, 3:2, 7:1}
+    dict_zero(dico)
+    dico : {1:0, 3:0, 7:0}
+    """
+    for key in dico:
+        dico[key] = 0
+        
+
+matrice_transition = np.array([[2/3, 1/3,   0], 
+                               [  0, 5/6, 1/6], 
+                               [  0,   0,   1]])
+
+
+data = np.loadtxt("data_exo_2022.txt")
+
 
 def analyse_seq(sequence, opt_card={}):
     sequence = sequence.astype(int)
     
     if opt_card == {}:
-        card = {float(elem) : 0 for elem in set(sequence)}
+        card = {elem : 0 for elem in set(sequence)}
         nb_etats = len(card)
         mat_transition_etats = np.zeros((nb_etats, nb_etats))
         
@@ -67,10 +124,6 @@ def matrice_proba_transition(sequence, opt_card={}):
             mat_transition_etats[i][j] /= card[i]
     return mat_transition_etats
     
-def dict_zero(dico):
-    for key in dico:
-        dico[key] = 0
-    return dico
 
 def matrice_proba_transition_liste(liste_sequence):
     card = {}
@@ -88,22 +141,17 @@ def matrice_proba_transition_liste(liste_sequence):
             matrice_finale[i][j] /= (len(liste_sequence))
             
     return matrice_finale
-        
 
-#print(matrice_proba_transition(seq_test))
+print("Matrice de transition de l'exemple:\n")
+print(matrice_proba_transition_liste([np.array([0., 0., 0., 1., 1., 1., 1., 1., 1., 2.])]))
+print("\nMatrice de transition des 5000 individus:\n")
+print(matrice_proba_transition_liste(data))
 
-#________________________________________________________________
 
-#1) La matrice de transition est la suivante :
-"""
-[" ",  "S",  "I",  "R"]
-["S", 0.92, 0.08,    0]
-["I",    0, 0.93, 0.07]
-["R",    0,    0,    1]
-"""
-mat_transition_modele1 = np.array([[0.92, 0.08,    0], 
-                                   [   0, 0.93, 0.07], 
-                                   [   0,    0,    1]])
+
+matrice_transition_modele1 = np.array([[0.92, 0.08,    0], 
+                                       [   0, 0.93, 0.07], 
+                                       [   0,    0,    1]])
 
 def est_stochastique(matrice):
     epsilon = 0.00001
@@ -112,24 +160,28 @@ def est_stochastique(matrice):
             return False
     return True
 
-#2) Proportions de la population :
-"""
+print("La matrice de transition de la partie I) est-elle stochastique ? :", est_stochastique(matrice_transition))
+
+print("La matrice de transition de la partie II) est-elle stochastique ? :", est_stochastique(matrice_transition))
+
+
 pi_0 = [0.90,
-       0.10,
-       0   ]
+        0.10,
+           0]
 
-pi_1 = [0.90*0.92 + 0*0,
-       0.90*0.08 + 0.10*0.93,
-       0.10*0.07 + 0*1      ]
-#   = [0.828, 0.165, 0.007]
+pi_1 = [0.90*0.92 + 0*0      ,
+        0.90*0.08 + 0.10*0.93,
+        0.10*0.07 + 0*1      ]
 
-pi_2 = [0.828*0.92 + 0.007*0,
-       0.828*0.08 + 0.165*0.93,
-       0.165*0.07 + 0.007*1      ]
-#   = [0.76176, 0.21969, 0.01855]
-"""
+print("pi_1 =", pi_1)
 
-#3)
+
+pi_2 = [0.828*0.92 + 0.007*0   ,
+        0.828*0.08 + 0.165*0.93,
+        0.165*0.07 + 0.007*1   ]
+
+print("pi_2 =", pi_2)
+
 
 def liste_pi(pi_0, A, n):
     l_pi = [pi_0]
@@ -139,22 +191,17 @@ def liste_pi(pi_0, A, n):
             pi_i.append(l_pi[-1][j] * A[j][j] + l_pi[-1][j-1] * A[j-1][j])
         l_pi.append(pi_i)
     return l_pi
-# print(liste_pi(pi_0, mat_transition_modele1, 200))
 
-#4)
+print("Liste des pi_i pour i entre 0 et 200 :")
+print(np.array(liste_pi(pi_0, matrice_transition_modele1, 200)))
 
 
 
-#________________________________________________________________
-#1) Ce processus peut bien être modelisé par une chaîne de Markov
-#2) La matrice de transition est la suivante :
-"""
-[" ",  "S",  "I",  "R"]
-["S", 0.92, 0.08,    0]
-["I",    0, 0.93, 0.07]
-["R", 0.02,    0, 0.98]
-"""
+
+
+
+
+
 mat_transition_modele2 = np.array([[0.92, 0.08,    0], 
                                    [   0, 0.93, 0.07], 
                                    [0.02,    0, 0.98]])
-
