@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-import random
+import random as rd
 
 def rec_extract_values(iterable, dico):
     """
@@ -144,8 +144,8 @@ def matrice_proba_transition_liste(liste_sequence):
 
 print("Matrice de transition de l'exemple:\n")
 print(matrice_proba_transition_liste([np.array([0., 0., 0., 1., 1., 1., 1., 1., 1., 2.])]))
-print("\nMatrice de transition des 5000 individus:\n")
-print(matrice_proba_transition_liste(data))
+#print("\nMatrice de transition des 5000 individus:\n")
+#print(matrice_proba_transition_liste(data))
 
 
 
@@ -192,15 +192,108 @@ def liste_pi(pi_0, A, n):
         l_pi.append(pi_i)
     return l_pi
 
-print("Liste des pi_i pour i entre 0 et 200 :")
-print(np.array(liste_pi(pi_0, matrice_transition_modele1, 200)))
+#print("Liste des pi_i pour i entre 0 et 200 :")
+#print(np.array(liste_pi(pi_0, matrice_transition_modele1, 200)))
+
+liste_pi_i = np.array(liste_pi(pi_0, matrice_transition_modele1, 200))
+
+def affiche_graphe_unique(liste_ordonnes, categorie, x_scale, is_ponctuel):
+    """
+    Paramètres:
+    func : function
+        Fonction dont on souhaite afficher le graphe
+    s_scale : str
+        Mot-clé "linear" ou "log" permettant de définir l'échelle de l'axe des abscisses
+    is_ponctuel : bool
+        Booléen qui décide de si oui ou non le graphe est ponctuel (si non, il est tracé via une courbe)    
+        
+    Retourne:
+    : None
+
+    Hypothèses:
+        On suppose que temps_exec_file(func) a déjà été exécuté auparavant
+
+    Description:
+    Permet d'afficher le graphe du temps d'exécution de func, paramétré par x_scale et is_ponctuel
+    """
+    #on crée les abscisses
+    abscisses = [i for i in range(200 +1)]
+    #on crée les ordonnées
+    ordonnees = liste_ordonnes
+    
+    #si on a l'option is_ponctuel à True
+    if is_ponctuel:
+        #alors on plot le graphe de manière ponctuelle, en prenant en compte du nombre de points
+        plt.plot(abscisses, ordonnees, "x")
+    else:
+        #sinon, on plot le graphe comme une courbe, en prenant en compte du nombre de points
+        plt.plot(abscisses, ordonnees)
+        
+    #on nomme l'axe des abscisses
+    plt.xlabel("Temps t")
+    #on nomme l'axe des ordonnées
+    if categorie == "S":
+        plt.ylabel("Proportion des personnes saines")
+    elif categorie == "I":
+        plt.ylabel("Proportion des personnes infectées")
+    elif categorie == "R":
+        plt.ylabel("Proportion des personnes guéries")
+    #on paramètre l'échelle des abscisses suivant l'option x_scale
+    plt.xscale(x_scale)
+    #on paramètre l'échelle des ordonnées comme linéaire
+    plt.yscale("linear")
+    #on donne un titre au graphique
+    if categorie == "S":
+        plt.title("Graphique de la proportion de personnes saines en fonction du temps")
+    elif categorie == "I":
+        plt.title("Graphique de la proportion de personnes infectées en fonction du temps")
+    elif categorie == "R":
+        plt.title("Graphique de la proportion de personnes guéries en fonction du temps")
+   
+    #on affiche le graphe
+    plt.show()
 
 
+#affiche_graphe_unique(liste_sains, "S", "linear", False)
+#affiche_graphe_unique(liste_infectes, "I", "linear", False)
+#affiche_graphe_unique(liste_gueris, "R", "linear", False)
 
 
+def affiche_graphe_multi(liste_pi):
+    #on crée les ordonnées
+    liste_sains = []
+    liste_infectes = []
+    liste_gueris = []
+    for pi in liste_pi_i:
+        liste_sains.append(pi[0])
+        liste_infectes.append(pi[1])
+        liste_gueris.append(pi[2])
+    
+    #on crée les abscisses
+    abscisses = [i for i in range(len(liste_pi))]
+    
+    #on plot le graphe comme une courbe
+    plt.plot(abscisses, liste_sains)
+    plt.plot(abscisses, liste_infectes)
+    plt.plot(abscisses, liste_gueris)
+        
+    #on nomme l'axe des abscisses
+    plt.xlabel("Temps t")
+    #on nomme l'axe des ordonnées
+    plt.ylabel("Proportion")
+    
+    #on paramètre l'échelle des abscisses suivant l'option x_scale
+    plt.xscale("linear")
+    #on paramètre l'échelle des ordonnées comme linéaire
+    plt.yscale("linear")
+    
+    #on donne un titre au graphique
+    plt.title("Graphique des proportions de population en fonction du temps")
+       
+    #on affiche le graphe
+    plt.show()
 
-
-
+#affiche_graphe_multi(liste_pi_i)
 
 mat_transition_modele2 = np.array([[0.92, 0.08,    0], 
                                    [   0, 0.93, 0.07], 
